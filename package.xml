@@ -8,7 +8,7 @@
     <license>GPL-3.0-or-later</license>
     <content>
         <macro>
-            <file>mvc_gui.FCMacro</file>
+            <file>MvcWorkspace.FCMacro</file>
             <icon>icon.png</icon>
         </macro>
     </content>
