@@ -9,6 +9,7 @@
     <content>
         <macro>
             <file>MvcWorkspace.FCMacro</file>
+            <file>mvc_gui.py</file>
             <icon>MvcWorkspace.png</icon>
         </macro>
     </content>

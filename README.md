@@ -1,5 +1,5 @@
 ## MVC Workspace
-Workspace manager and GUI for interacting with "Mini Version Control".\
+Workspace manager and GUI for interacting with "Mini Version Control".
 ### Use
 When using the first time, open the settings button to configure your base path and user name.
 
