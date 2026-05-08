@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package format="1">
+    <name>MVC Workspace</name>
+    <description>Opens a directory as a workspace. Integrates Mini Version Control (MVC) commands to manage files and collaborate on multi file projects.</description>
+    <version>1.0.0</version>
+    <url>https://github.com/jelle284/mvc-workspace</url>
+    <author>Jesper Borchsenius Seegert</author>
+    <license>GPL-3.0-or-later</license>
+    <content>
+        <macro>
+            <file>mvc_gui.FCMacro</file>
+            <icon>icon.png</icon>
+        </macro>
+    </content>
+</package>
