@@ -280,6 +280,8 @@ class MVCGui(QWidget):
         self.desc_edit.setAlignment(Qt.AlignTop)
 
         # Text outputs
+        self.activeProjectLabel = QLabel()
+        self.activeProjectLabel.setStyleSheet("border: 1px solid black;")
         self.infoLabel = QLabel()
         self.infoLabel.setStyleSheet("border: 1px solid black;")
         self.infoLabel.setWordWrap(True)
@@ -305,6 +307,7 @@ class MVCGui(QWidget):
         left_col.addStretch(1)
         vbox2 = QVBoxLayout()
         vbox2.addWidget(QLabel("Project status"))
+        vbox2.addWidget(self.activeProjectLabel)
         vbox2.addWidget(self.infoLabel)
         vbox2.addWidget(self.accept_button)
         vbox2.addWidget(self.release_button)
@@ -384,6 +387,11 @@ class MVCGui(QWidget):
         claimed_by_user = []
         try:
             mvc = self._get_mvc()
+            try:
+                project = mvc._get_workspace().project
+                activeProjectText = f'Active project: {project}'
+            except MVCError:
+                activeProjectText = "No active project"
             status = mvc.status()
             if status:
                 if len(status) > 10: status = status[:10]
@@ -405,6 +413,7 @@ class MVCGui(QWidget):
                 self.file_label.setText("")
         except MVCError:
             pass
+        self.activeProjectLabel.setText(activeProjectText)
         self.infoLabel.setText(infoText)
         self.file_list.file_colors['orange'] = changed_files
         self.file_list.file_colors['blue'] = new_files
