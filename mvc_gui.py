@@ -381,17 +381,15 @@ class MVCGui(QWidget):
 
     def _on_timer_tick(self):
         infoText = ""
+        activeProjectText = "No active project"
         changed_files = []
         new_files = []
         claimed_by_others = []
         claimed_by_user = []
         try:
             mvc = self._get_mvc()
-            try:
-                project = mvc._get_workspace().project
-                activeProjectText = f'Active project: {project}'
-            except MVCError:
-                activeProjectText = "No active project"
+            project = mvc._get_workspace().project
+            activeProjectText = f'Active project: {project}'
             status = mvc.status()
             if status:
                 if len(status) > 10: status = status[:10]
