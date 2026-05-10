@@ -209,10 +209,15 @@ class MVCGui(QWidget):
         try:
             self.user_config = UserConfig.load(self.appdata_path)
         except Exception as e:
+            import getpass, sys
+            if sys.platform == 'win32':
+                home = QDir.rootPath()
+            else:
+                home = QDir.homePath()
             self.user_config = UserConfig(
-                base_path = f"{QDir.rootPath()}mvc-files",
-                user_name = "user",
-                user_paths = [QDir.rootPath(),]
+                base_path = os.path.join(home, "mvc-files"),
+                user_name = getpass.getuser(),
+                user_paths = [home,]
             )
             print(f"Exception in load config {e}, using defaults.")
         self._file_extension_callbacks = {}
