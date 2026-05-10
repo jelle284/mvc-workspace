@@ -350,7 +350,10 @@ class MVCGui(QWidget):
     
     def _updateGUI(self):
         current_path = self.user_config.user_paths[0]
-        self.file_list.load_directory(current_path)
+        try:
+            self.file_list.load_directory(current_path)
+        except FileNotFoundError:
+            self.file_list.clear()
         self.workspace_combo.clear()
         for path in self.user_config.user_paths:
             self.workspace_combo.addItem(path)
@@ -417,9 +420,18 @@ class MVCGui(QWidget):
         self.file_list.file_colors['blue'] = new_files
         self.file_list.file_colors['red'] = claimed_by_others
         self.file_list.file_colors['green'] = claimed_by_user
-        self.file_list.update_directory()
-        self.file_list.update_colors()
-        
+        try:
+            self.file_list.update_directory()
+            self.file_list.update_colors()
+        except FileNotFoundError:
+            self.file_list.clear()
+            self.errLabel.setText(f"Invalid user path.")
+        len_before = len(self.user_config.user_paths)
+        self.user_config.user_paths[1:] = [p for p in self.user_config.user_paths[1:] if os.path.exists(p)]
+        if len(self.user_config.user_paths) < len_before:
+            self.workspace_combo.clear()
+            for path in self.user_config.user_paths:
+                self.workspace_combo.addItem(path)
 
     def _workspace_combo_change(self, index):
         path = self.workspace_combo.itemText(index)
