@@ -108,6 +108,8 @@ class CollectDialog(QDialog):
 class CheckableFileList(QListWidget):
     def _scan(self):
         files = []
+        if not os.path.isdir(self.current_path):
+            return files
         for filename in os.listdir(self.current_path):
             exclude_by_filename = filename in (
                 ".mvc",
@@ -351,6 +353,15 @@ class MVCGui(QWidget):
         return MiniVC(self.user_config.base_path, self.user_config.user_paths[0], self.user_config.user_name)
     
     def _updateGUI(self):
+        notify = False
+        for user_path in self.user_config.user_paths:
+            if not os.path.isdir(user_path):
+                self.user_config.user_paths.remove(user_path)
+                notify=True
+        if len(self.user_config.user_paths) == 0:
+            self.user_config.user_paths.append(QDir.homePath())
+        if notify:
+            print("The selected user path has been moved or deleted.")
         current_path = self.user_config.user_paths[0]
         self.file_list.load_directory(current_path)
         self.workspace_combo.clear()
@@ -421,7 +432,8 @@ class MVCGui(QWidget):
         self.file_list.file_colors['green'] = claimed_by_user
         self.file_list.update_directory()
         self.file_list.update_colors()
-        
+        if not os.path.isdir(self.user_config.user_paths[0]):
+            self._updateGUI()
 
     def _workspace_combo_change(self, index):
         path = self.workspace_combo.itemText(index)
