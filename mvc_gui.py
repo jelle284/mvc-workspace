@@ -404,7 +404,7 @@ class MVCGui(QWidget):
             activeProjectText = f'Active project: {project}'
             status = mvc.status()
             if status:
-                if len(status) > 10: status = status[:10]
+                if len(status) > 20: status = status[:20]
                 infoText = "\n".join(status)
             new_files, changed_files = mvc.changes()
             claims = mvc.get_claims()
