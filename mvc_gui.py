@@ -204,15 +204,17 @@ class MVCGui(QWidget):
     def __init__(self, appdata_path = None):
         super(MVCGui, self).__init__()
         if not appdata_path:
-            appdata_path = QDir.homePath()
+            appdata_path = os.path.join(QDir.homePath(), 'mvc-config')
+        if not os.path.exists(appdata_path):
+            os.makedirs(appdata_path)
         self.appdata_path = appdata_path
         try:
             self.user_config = UserConfig.load(self.appdata_path)
         except Exception as e:
             self.user_config = UserConfig(
-                base_path = f"{QDir.rootPath()}mvc-files",
+                base_path = os.path.join(QDir.homePath(), 'mvc-files'),
                 user_name = "user",
-                user_paths = [QDir.rootPath(),]
+                user_paths = [QDir.homePath(),]
             )
             print(f"Exception in load config {e}, using defaults.")
         self._file_extension_callbacks = {}
