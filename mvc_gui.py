@@ -1,5 +1,5 @@
 from mvc.core import MiniVC, MVCError
-from mvc.helpers import JSONBase, FileID
+from mvc.helpers import JSONBase, FileID, Workspace, Project
 import os
 from dataclasses import dataclass
 
@@ -371,10 +371,9 @@ class MVCGui(QWidget):
         allow_create = True
         allow_load = True
         try:
-            mvc = self._get_mvc()
-            workspace = mvc._get_workspace()
+            workspace = Workspace.load(current_path)
             allow_load = False
-            mvc._get_project(workspace.project)
+            Project.load(os.path.join(self.user_config.base_path, workspace.project))
             allow_create = False
             self.errLabel.setText("")
         except MVCError as err:
@@ -401,7 +400,7 @@ class MVCGui(QWidget):
         claimed_by_user = []
         try:
             mvc = self._get_mvc()
-            project = mvc._get_workspace().project
+            project = Workspace.load(self.user_config.user_paths[0]).project
             activeProjectText = f'Active project: {project}'
             status = mvc.status()
             if status:

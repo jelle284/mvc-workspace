@@ -48,21 +48,6 @@ class MiniVC:
 
     def _current_timestamp(self) -> str:
         return datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-
-    def _get_project(self, project_name: str):
-        try:
-            project_path = self.base_path / project_name
-            project = Project.load(project_path)
-            return project, project_path
-        except FileNotFoundError:
-            raise MVCError("Configured project does not exist.")
-    
-    def _get_workspace(self):
-        try:
-            workspace = Workspace.load(self.user_path)
-            return workspace
-        except FileNotFoundError:
-            raise MVCError("Workspace not intialized.")
         
     def _file_walker(self, project: Project, file_id: FileID) -> dict[str, Path]:
         ret_files = {}
@@ -102,7 +87,8 @@ class MiniVC:
         workspace.save(self.user_path)
 
     def load(self, name: str):
-        project, _ = self._get_project(name)
+        project_path = self.base_path / name
+        project = Project.load(project_path)
         workspace = Workspace(
             project.name,)
         workspace.save(self.user_path)
@@ -113,8 +99,9 @@ class MiniVC:
         user_files = list_files_dir(self.user_path)
         if any(file not in user_files for file in files):
             raise MVCError("File does not exist in workspace.")
-        workspace = self._get_workspace()
-        project, project_path = self._get_project(workspace.project)
+        workspace = Workspace.load(self.user_path)
+        project_path = self.base_path / workspace.project
+        project = Project.load(project_path)
         for file in files:
             if file in project.claims:
                 if project.claims[file] != self.user_name:
@@ -144,8 +131,9 @@ class MiniVC:
     def remove(self, files: list[str], comment: str = ""):
         if not files:
             raise MVCError("Files is empty.")
-        workspace = self._get_workspace()
-        project, project_path = self._get_project(workspace.project)
+        workspace = Workspace.load(self.user_path)
+        project_path = self.base_path / workspace.project
+        project = Project.load(project_path)
         project_files = self._file_walker(project, project.id)
         if any(file not in project_files for file in files):
             raise MVCError("File does not exist in project.")
@@ -171,8 +159,9 @@ class MiniVC:
         version.save(version_path)
         
     def accept(self, comment: str = ""):
-        workspace = self._get_workspace()
-        project, project_path = self._get_project(workspace.project)
+        workspace = Workspace.load(self.user_path)
+        project_path = self.base_path / workspace.project
+        project = Project.load(project_path)
         if project.id.dev == 0:
             raise MVCError("No files submitted")
         submits_to_collect = project.id.dev
@@ -214,8 +203,9 @@ class MiniVC:
         project.save(project_path)
 
     def release(self, comment: str = ""):
-        workspace = self._get_workspace()
-        project, project_path = self._get_project(workspace.project)
+        workspace = Workspace.load(self.user_path)
+        project_path = self.base_path / workspace.project
+        project = Project.load(project_path)
         if project.id.dev > 0:
             raise MVCError("Unsaved submits.")
         if project.id.minor == 0:
@@ -240,8 +230,9 @@ class MiniVC:
         project.save(project_path)
 
     def collect(self, file_id: FileID):
-        workspace = self._get_workspace()
-        project, _ = self._get_project(workspace.project)
+        workspace = Workspace.load(self.user_path)
+        project_path = self.base_path / workspace.project
+        project = Project.load(project_path)
         if (project.id.dev < file_id.dev or
             project.id.minor < file_id.minor or
             project.id.major < file_id.major):
@@ -253,8 +244,9 @@ class MiniVC:
         self._write_changelog(project)
     
     def available(self) -> list[FileID]:
-        workspace = self._get_workspace()
-        project, _ = self._get_project(workspace.project)
+        workspace = Workspace.load(self.user_path)
+        project_path = self.base_path / workspace.project
+        project = Project.load(project_path)
         ret = []
         for i in range(project.id.dev, 0, -1):
             ret.append(FileID(project.id.major, project.id.minor, i))
@@ -275,8 +267,9 @@ class MiniVC:
         return ret
 
     def status(self) -> list[str]:
-        workspace = self._get_workspace()
-        project, project_path = self._get_project(workspace.project)
+        workspace = Workspace.load(self.user_path)
+        project_path = self.base_path / workspace.project
+        project = Project.load(project_path)
         if project.id.dev > 0:
             ret = []
             for i in range(project.id.dev, 0, -1):
@@ -294,8 +287,9 @@ class MiniVC:
         return version.description
     
     def changes(self, file_id: FileID = None) -> tuple[list[str], list[str]]:
-        workspace = self._get_workspace()
-        project, _ = self._get_project(workspace.project)
+        workspace = Workspace.load(self.user_path)
+        project_path = self.base_path / workspace.project
+        project = Project.load(project_path)
         workspace_files = list_files_dir(self.user_path)
         if not file_id: file_id = project.id
         version_files = self._file_walker(project, file_id)
@@ -314,8 +308,9 @@ class MiniVC:
         return new_files, changed_files
     
     def claim(self, files: list[str]) -> None:
-        workspace = self._get_workspace()
-        project, project_path = self._get_project(workspace.project)
+        workspace = Workspace.load(self.user_path)
+        project_path = self.base_path / workspace.project
+        project = Project.load(project_path)
         contents = self._file_walker(project, project.id)
         for file in files:
             if file not in contents:
@@ -324,8 +319,9 @@ class MiniVC:
         project.save(project_path)
     
     def unclaim(self, files: list[str], force=False) -> None:
-        workspace = self._get_workspace()
-        project, project_path = self._get_project(workspace.project)
+        workspace = Workspace.load(self.user_path)
+        project_path = self.base_path / workspace.project
+        project = Project.load(project_path)
         for file in files:
             if file in project.claims:
                 user_owns_file = project.claims[file] == self.user_name
@@ -335,6 +331,7 @@ class MiniVC:
         project.save(project_path)
     
     def get_claims(self) -> dict[str,str]:
-        workspace = self._get_workspace()
-        project, _ = self._get_project(workspace.project)
+        workspace = Workspace.load(self.user_path)
+        project_path = self.base_path / workspace.project
+        project = Project.load(project_path)
         return project.claims

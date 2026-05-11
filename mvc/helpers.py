@@ -76,10 +76,36 @@ class Project(JSONBase):
     name: str
     id: FileID
     claims: dict[str, str]
+    def save(self, filepath: str):
+        try:
+            super().save(filepath)
+        except PermissionError:
+            raise MVCError("No write permission in base path.")
+    @classmethod
+    def load(self, filepath: str):
+        try:
+            return super().load(filepath)
+        except FileNotFoundError:
+            raise MVCError("Configured project does not exist.")
+        except TypeError:
+            raise MVCError("Invalid project configuration.")
 
 @dataclass
 class Workspace(JSONBase):
     project: str
+    def save(self, filepath: str):
+        try:
+            super().save(filepath)
+        except PermissionError:
+            raise MVCError("No write permission in user path.")
+    @classmethod
+    def load(self, filepath: str):
+        try:
+            return super().load(filepath)
+        except FileNotFoundError:
+            raise MVCError("Workspace not intialized.")
+        except TypeError:
+            raise MVCError("Invalid workspace configuration.")
 
 @dataclass
 class Version(JSONBase):
